@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SARFAD LIVE WEB</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body class="bg-gray-100">
+    <h1 class="text-3xl font-bold mb-4 text-center mt-4">SARFAD LIVE WEB</h1>
+  <div class="container mx-auto mt-8 flex flex-wrap justify-center">
+
+    <div class="w-full sm:w-1/2 p-4 flex justify-center">
+      <canvas id="temperatureChart" class="w-full h-auto"></canvas>
+    </div>
+    <div class="w-full sm:w-1/2 p-4 flex justify-center">
+      <canvas id="pressureChart" class="w-full h-auto"></canvas>
+    </div>
+  </div>
+
+  <script>
+    function fetchAndRefreshData() {
+      fetch('/data')
+        .then(response => response.json())
+        .then(data => {
+          const times = data.map(row => row.time);
+          const temperatures = data.map(row => row.temperature);
+          const pressures = data.map(row => row.pressure);
+
+          const tempCtx = document.getElementById('temperatureChart').getContext('2d');
+          const temperatureChart = new Chart(tempCtx, {
+            type: 'line',
+            data: {
+              labels: times,
+              datasets: [
+                {
+                  label: 'Temperature',
+                  data: temperatures,
+                  borderColor: 'rgb(255, 99, 132)',
+                  tension: 0.1
+                }
+              ]
+            }
+          });
+
+          const pressureCtx = document.getElementById('pressureChart').getContext('2d');
+          const pressureChart = new Chart(pressureCtx, {
+            type: 'line',
+            data: {
+              labels: times,
+              datasets: [
+                {
+                  label: 'Pressure',
+                  data: pressures,
+                  borderColor: 'rgb(54, 162, 235)',
+                  tension: 0.1
+                }
+              ]
+            }
+          });
+
+          if (window.temperatureChart) {
+            window.temperatureChart.destroy();
+          }
+          if (window.pressureChart) {
+            window.pressureChart.destroy();
+          }
+
+          window.temperatureChart = temperatureChart;
+          window.pressureChart = pressureChart;
+        })
+        .catch(error => {
+          console.error('Error fetching data:', error);
+        });
+    }
+
+    fetchAndRefreshData();
+
+    // Refresh data every second
+    setInterval(fetchAndRefreshData, 1000);
+  </script>
+</body>
+</html>
