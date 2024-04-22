@@ -32,7 +32,7 @@ app.get('/', (req, res) => {
 });
 
 app.get('/data', (req, res) => {
-  connection.query('SELECT time, temperature, pressure FROM table_data', (error, results, fields) => {
+  connection.query('SELECT time, temperature, pressure, humidity, latitude, longitude, height, velocity FROM sarfad_data', (error, results, fields) => {
     if (error) {
       console.error('Error executing query:', error);
       res.status(500).json({ error: 'Internal server error' });
