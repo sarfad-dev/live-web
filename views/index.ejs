@@ -11,40 +11,42 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
 
-<body class="bg-gray-100">
-    <h1 class="text-3xl font-bold mb-4 text-center mt-4">SARFAD LIVE WEB</h1>
+<body class="bg-gray-900 text-gray-200">
+    <header class="bg-gray-800 p-4 mb-4 shadow-md text-center rounded-b-lg">
+        <h1 class="text-3xl font-bold text-blue-400">SARFAD LIVE WEB</h1>
+    </header>
 
     <div class="container mx-auto mt-8 flex flex-wrap justify-center">
-        <div class="w-full sm:w-full p-4">
-            <div id="map" class="w-full h-64"></div>
+        <div class="w-full p-4">
+            <div id="map" class="w-full h-64 rounded-lg shadow-md"></div>
         </div>
 
         <div class="w-full sm:w-1/2 p-4 flex justify-center">
-            <canvas id="temperatureChart" class="w-full h-auto"></canvas>
+            <canvas id="temperatureChart" class="w-full h-auto bg-gray-800 rounded-lg shadow-md"></canvas>
         </div>
 
         <div class="w-full sm:w-1/2 p-4 flex justify-center">
-            <canvas id="pressureChart" class="w-full h-auto"></canvas>
+            <canvas id="pressureChart" class="w-full h-auto bg-gray-800 rounded-lg shadow-md"></canvas>
         </div>
 
         <div class="w-full sm:w-1/2 p-4 flex justify-center">
-            <canvas id="humidityChart" class="w-full h-auto"></canvas>
+            <canvas id="humidityChart" class="w-full h-auto bg-gray-800 rounded-lg shadow-md"></canvas>
         </div>
 
         <div class="w-full sm:w-1/2 p-4 flex justify-center">
-            <canvas id="heightChart" class="w-full h-auto"></canvas>
+            <canvas id="heightChart" class="w-full h-auto bg-gray-800 rounded-lg shadow-md"></canvas>
         </div>
 
         <div class="w-full sm:w-1/2 p-4 flex justify-center">
-            <canvas id="velocityChart" class="w-full h-auto"></canvas>
+            <canvas id="velocityChart" class="w-full h-auto bg-gray-800 rounded-lg shadow-md"></canvas>
         </div>
 
         <div class="w-full sm:w-1/2 p-4 text-center">
-            <p id="locationDisplay" class="text-lg"></p>
+            <p id="locationDisplay" class="text-lg bg-gray-800 p-2 rounded-lg shadow-md"></p>
         </div>
     </div>
 
-    <script>
+<script>
         let temperatureChartInstance, pressureChartInstance, humidityChartInstance, heightChartInstance, velocityChartInstance;
         const map = L.map('map').setView([0, 0], 2);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
