@@ -1,84 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>SARFAD LIVE WEB</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-</head>
-<body class="bg-gray-100">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SARFAD LIVE WEB</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+  </head>
+
+  <body class="bg-gray-100">
     <h1 class="text-3xl font-bold mb-4 text-center mt-4">SARFAD LIVE WEB</h1>
-  <div class="container mx-auto mt-8 flex flex-wrap justify-center">
 
-    <div class="w-full sm:w-1/2 p-4 flex justify-center">
-      <canvas id="temperatureChart" class="w-full h-auto"></canvas>
+    <div class="container mx-auto mt-8 flex flex-wrap justify-center">
+      <div class="w-full sm:w-1/2 p-4 flex justify-center">
+        <canvas id="temperatureChart" class="w-full h-auto"></canvas>
+      </div>
+
+      <div class="w-full sm:w-1/2 p-4 flex justify-center">
+        <canvas id="pressureChart" class="w-full h-auto"></canvas>
+      </div>
+
+      <div class="w-full sm:w-1/2 p-4 flex justify-center">
+        <canvas id="humidityChart" class="w-full h-auto"></canvas>
+      </div>
+
+      <div class="w-full sm:w-1/2 p-4 flex justify-center">
+        <canvas id="heightChart" class="w-full h-auto"></canvas>
+      </div>
+
+      <div class="w-full sm:w-1/2 p-4 flex justify-center">
+        <canvas id="velocityChart" class="w-full h-auto"></canvas>
+      </div>
+
+      <div class="w-full sm:w-1/2 p-4 text-center">
+        <p id="locationDisplay" class="text-lg"></p>
+      </div>
     </div>
-    <div class="w-full sm:w-1/2 p-4 flex justify-center">
-      <canvas id="pressureChart" class="w-full h-auto"></canvas>
-    </div>
-  </div>
 
-  <script>
-    function fetchAndRefreshData() {
-      fetch('/data')
-        .then(response => response.json())
-        .then(data => {
-          const times = data.map(row => row.time);
-          const temperatures = data.map(row => row.temperature);
-          const pressures = data.map(row => row.pressure);
+    <script>
+      let temperatureChartInstance,
+        pressureChartInstance,
+        humidityChartInstance,
+        heightChartInstance,
+        velocityChartInstance;
 
-          const tempCtx = document.getElementById('temperatureChart').getContext('2d');
-          const temperatureChart = new Chart(tempCtx, {
-            type: 'line',
-            data: {
-              labels: times,
-              datasets: [
-                {
-                  label: 'Temperature',
-                  data: temperatures,
-                  borderColor: 'rgb(255, 99, 132)',
-                  tension: 0.1
-                }
-              ]
-            }
+      function updateChartData(chartInstance, times, data) {
+        chartInstance.data.labels = times;
+        chartInstance.data.datasets[0].data = data;
+        chartInstance.options.animation = false;
+        chartInstance.update();
+      }
+
+      function fetchAndRefreshData() {
+        fetch("/data")
+          .then((response) => response.json())
+          .then((data) => {
+            const times = data.map(
+              (row) => new Date(`1970-01-01T${row.time}Z`)
+            );
+            const temperatures = data.map((row) => row.temperature);
+            const pressures = data.map((row) => row.pressure);
+            const humidities = data.map((row) => row.humidity);
+            const heights = data.map((row) => row.height);
+            const velocities = data.map((row) => row.velocity);
+            const latestRow = data[data.length - 1];
+            const latestLatitude = latestRow.latitude;
+            const latestLongitude = latestRow.longitude;
+
+            updateChartData(temperatureChartInstance, times, temperatures);
+            updateChartData(pressureChartInstance, times, pressures);
+            updateChartData(humidityChartInstance, times, humidities);
+            updateChartData(heightChartInstance, times, heights);
+            updateChartData(velocityChartInstance, times, velocities);
+
+            const locationDisplayElement = document.getElementById(
+              "locationDisplay"
+            );
+            locationDisplayElement.innerText = `Latitude: ${latestLatitude.toFixed(
+              2
+            )}, Longitude: ${latestLongitude.toFixed(2)}`;
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
           });
+      }
 
-          const pressureCtx = document.getElementById('pressureChart').getContext('2d');
-          const pressureChart = new Chart(pressureCtx, {
-            type: 'line',
-            data: {
-              labels: times,
-              datasets: [
-                {
-                  label: 'Pressure',
-                  data: pressures,
-                  borderColor: 'rgb(54, 162, 235)',
-                  tension: 0.1
-                }
-              ]
-            }
-          });
+      function initializeCharts() {
+        const tempCtx = document
+          .getElementById("temperatureChart")
+          .getContext("2d");
+        temperatureChartInstance = new Chart(tempCtx, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Temperature",
+                data: [],
+                borderColor: "rgb(255, 99, 132)",
+                tension: 0.1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              x: {
+                type: "time",
+                time: {
+                  unit: "minute", 
+                  displayFormats: {
 
-          if (window.temperatureChart) {
-            window.temperatureChart.destroy();
-          }
-          if (window.pressureChart) {
-            window.pressureChart.destroy();
-          }
-
-          window.temperatureChart = temperatureChart;
-          window.pressureChart = pressureChart;
-        })
-        .catch(error => {
-          console.error('Error fetching data:', error);
+                    minute: "hh:mm",
+                    hour: "hh:mm",
+                  },
+                },
+              },
+            },
+            animation: false,
+          },
         });
-    }
 
-    fetchAndRefreshData();
+        const pressureCtx = document
+          .getElementById("pressureChart")
+          .getContext("2d");
+        pressureChartInstance = new Chart(pressureCtx, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Pressure",
+                data: [],
+                borderColor: "rgb(54, 162, 235)",
+                tension: 0.1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              x: {
+                type: "time",
+                time: {
+                  unit: "minute", 
+                  displayFormats: {
 
-    // Refresh data every second
-    setInterval(fetchAndRefreshData, 1000);
-  </script>
-</body>
+                    minute: "hh:mm",
+                    hour: "hh:mm",
+                  },
+                },
+              },
+            },
+            animation: false,
+          },
+        });
+        const humidityCtx = document
+          .getElementById("humidityChart")
+          .getContext("2d");
+        humidityChartInstance = new Chart(humidityCtx, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Humidity",
+                data: [],
+                borderColor: "rgb(75, 192, 192)",
+                tension: 0.1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              x: {
+                type: "time",
+                time: {
+                  unit: "minute", 
+                  displayFormats: {
+
+                    minute: "hh:mm",
+                    hour: "hh:mm",
+                  },
+                },
+              },
+            },
+            animation: false,
+          },
+        });
+
+        const heightCtx = document
+          .getElementById("heightChart")
+          .getContext("2d");
+        heightChartInstance = new Chart(heightCtx, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Height",
+                data: [],
+                borderColor: "rgb(153, 102, 255)",
+                tension: 0.1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              x: {
+                type: "time",
+                time: {
+                  unit: "minute", 
+                  displayFormats: {
+
+                    minute: "hh:mm",
+                    hour: "hh:mm",
+                  },
+                },
+              },
+            },
+            animation: false,
+          },
+        });
+
+        const velocityCtx = document
+          .getElementById("velocityChart")
+          .getContext("2d");
+        velocityChartInstance = new Chart(velocityCtx, {
+          type: "line",
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: "Velocity",
+                data: [],
+                borderColor: "rgb(255, 206, 86)",
+                tension: 0.1,
+              },
+            ],
+          },
+          options: {
+            scales: {
+              x: {
+                type: "time",
+                time: {
+                  unit: "minute", 
+                  displayFormats: {
+
+                    minute: "hh:mm",
+                    hour: "hh:mm",
+                  },
+                },
+              },
+            },
+            animation: false,
+          },
+        });
+      }
+
+      window.onload = function () {
+        initializeCharts();
+        fetchAndRefreshData();
+        setInterval(fetchAndRefreshData, 1000);
+      };
+    </script>
+  </body>
 </html>
