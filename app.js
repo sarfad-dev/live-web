@@ -2,17 +2,17 @@ const express = require('express');
 const mysql = require('mysql');
 const dotenv = require('dotenv');
 const ejs = require('ejs');
+const crypto = require('crypto');
 
 dotenv.config();
 
 const app = express();
 const port = 25576;
-
 const connection = mysql.createConnection({
   host: process.env.MYSQL_HOST,
   user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
-  database: process.env.MYSQL_DATABASE
+  database: process.env.MYSQL_DATABASE,
 });
 
 connection.connect((err) => {
@@ -24,11 +24,14 @@ connection.connect((err) => {
 });
 
 app.set('view engine', 'ejs');
-
 app.use(express.static('public'));
 
 app.get('/live', (req, res) => {
   res.render('live');
+});
+
+app.get('/locate', (req, res) => {
+  res.render('locate');
 });
 
 app.get('/', (req, res) => {
@@ -42,7 +45,6 @@ app.get('/live-data', (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
       return;
     }
-
     res.json(results);
   });
 });
@@ -59,6 +61,17 @@ app.get('/latest-location', (req, res) => {
   });
 });
 
+app.get('/check-password', (req, res) => {
+  const userInputPassword = req.query.password;
+  const correctPassword = process.env.PASSWORD;
+
+  if (userInputPassword === correctPassword) {
+    const sessionToken = crypto.randomBytes(16).toString('hex');
+    res.json({ authorized: true, sessionToken });
+  } else {
+    res.json({ authorized: false });
+  }
+});
 
 const colors = {
   green: '\x1b[32m',
@@ -69,8 +82,8 @@ const colors = {
 app.listen(port, () => {
   console.log(`${colors.green}App listening on the following routes:${colors.reset}`);
   console.log(`${colors.white}---------------------------------------${colors.reset}`);
-  console.log(`${colors.green}Index Page: ${colors.reset}http://localhost:${port}`);
+  console.log(`${colors.green}Index Page: ${colors.reset}http://localhost:${port}/`);
   console.log(`${colors.green}Live Web: ${colors.reset}http://localhost:${port}/live`);
+  console.log(`${colors.green}Locate App: ${colors.reset}http://localhost:${port}/locate`);
   console.log(`${colors.white}---------------------------------------${colors.reset}`);
 });
-  

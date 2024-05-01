@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Locate CanSat</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/tailwindcss@latest/dist/tailwind.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+
+      #map {
+        width: 100%;
+        height: 70vh;
+        border-radius: 10px;
+      }
+
+      #mapContainer {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 0.5rem; 
+      }
+
+      .info-text {
+        padding: 10px;
+        text-align: center;
+      }
+
+      #googleMapsButton,
+      #mapyCzButton {
+        display: block; 
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        margin-right: 10px; 
+        margin-bottom: 10px; 
+      }
+
+      #googleMapsButton {
+        background-color: #007bff;
+        color: white;
+        margin-right: 0.5rem;
+      }
+
+      #mapyCzButton {
+        background-color: #28a745;
+        color: white;
+      }
+
+
+      #googleMapsButton:hover,
+      #mapyCzButton:hover {
+        opacity: 0.9;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        height: 100vh;
+        margin: 0;
+        background-color: #1a202c;
+        color: white;
+      }
+
+      #passwordPrompt {
+        text-align: center;
+        padding: 1rem;
+        background-color: #2d3748;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      #passwordInput {
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        width: 80%;
+        border: none;
+        border-radius: 5px;
+        outline: none;
+        color: black;
+      }
+
+      #passwordButton {
+        background-color: #3182ce;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+
+      #passwordButton:hover {
+        background-color: #63b3ed;
+      }
+
+      #errorText {
+        color: red;
+        margin-top: 0.5rem;
+      }
+
+      @media (max-width: 768px) {
+        #map {
+          height: 60vh;
+        }
+
+        #googleMapsButton,
+        #mapyCzButton {
+          padding: 8px 16px;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="passwordPrompt">
+      <h2>Please enter the password:</h2>
+      <input type="text" id="passwordInput" placeholder="Enter password" />
+      <button id="passwordButton">Submit</button>
+      <p id="errorText" style="color: red"></p>
+    </div>
+
+    <div id="mainContent" class="flex flex-col items-center justify-center hidden">
+      <h1 class="text-3xl font-bold mb-6">SARFAD Locator</h1>
+      <button id="locateButton" class="bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-lg text-lg transition-all">
+        Locate CanSat
+      </button>
+      <div id="mapContainer" class="hidden">
+        <div id="map"></div>
+        <div class="flex mt-4">
+          <button id="googleMapsButton">Open in Google Maps</button>
+          <button id="mapyCzButton">Open in Mapy.cz</button>
+        </div>
+        <div id="infoText" class="info-text"></div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-arrowheads/js/leaflet-arrowheads.min.js"></script>
+    <script>
+      const passwordInput = document.getElementById("passwordInput");
+      const passwordButton = document.getElementById("passwordButton");
+      const errorText = document.getElementById("errorText");
+      const mainContent = document.getElementById("mainContent");
+
+      const checkSession = () => {
+        const sessionToken = document.cookie.replace(/(?:(?:^|.*;\s*)sessionToken\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+        if (sessionToken) {
+          document.getElementById("passwordPrompt").style.display = "none";
+          mainContent.classList.remove("hidden");
+        }
+      };
+
+      const setSessionToken = (token) => {
+        document.cookie = `sessionToken=${token}; path=/; max-age=3600`;
+      };
+
+      window.onload = checkSession;
+
+      passwordButton.addEventListener("click", async function () {
+        const password = passwordInput.value;
+        const response = await fetch(`/check-password?password=${password}`);
+        const data = await response.json();
+
+        if (data.authorized) {
+          document.getElementById("passwordPrompt").style.display = "none";
+          mainContent.classList.remove("hidden");
+          setSessionToken(data.sessionToken);
+        } else {
+          errorText.innerHTML = "Incorrect password. Please try again.";
+        }
+      });
+
+      const locateButton = document.getElementById("locateButton");
+      const mapContainer = document.getElementById("mapContainer");
+      const infoText = document.getElementById("infoText");
+      const googleMapsButton = document.getElementById("googleMapsButton");
+      const mapyCzButton = document.getElementById("mapyCzButton");
+      let targetLat;
+      let targetLng;
+
+      locateButton.addEventListener("click", async function () {
+        locateButton.disabled = true;
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            const response = await fetch("/latest-location");
+            const data = await response.json();
+            const { latitude, longitude } = data[0];
+            targetLat = parseFloat(data[0].latitude);
+            targetLng = parseFloat(data[0].longitude);
+
+            locateButton.style.display = "none";
+            mapContainer.classList.remove("hidden");
+            const map = L.map("map").setView([userLat, userLng], 13);
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+              attribution: "Map data © OpenStreetMap contributors",
+              maxZoom: 18,
+            }).addTo(map);
+            const userMarker = L.marker([userLat, userLng]).addTo(map).bindPopup("Your location").openPopup();
+            const targetMarker = L.marker([latitude, longitude]).addTo(map).bindPopup("Target location").openPopup();
+
+            const latLngs = [
+              [userLat, userLng],
+              [latitude, longitude],
+            ];
+            const polyline = L.polyline(latLngs, {
+              color: "blue",
+              weight: 3,
+            }).addTo(map);
+            map.fitBounds(polyline.getBounds());
+            const distance = map.distance(userMarker.getLatLng(), targetMarker.getLatLng());
+            const estimatedTime = distance / 1.4;
+            const angle = map.angle([userLat, userLng], [latitude, longitude]);
+            infoText.innerHTML = `
+              <p>You are ${distance.toFixed(2)} meters away from the target location.</p>
+              <p>Estimated time to reach the location: ${Math.ceil(estimatedTime / 60)} minutes.</p>
+              <p>Direction: <span style="display:inline-block; transform: rotate(${angle}deg);">&#x2795;</span></p>
+            `;
+            polyline.arrowheads({
+              size: "15%",
+              frequency: "end",
+              color: "red",
+            });
+
+            googleMapsButton.style.display = "inline-block";
+            mapyCzButton.style.display = "inline-block";
+          },
+          (error) => {
+            console.error("Error fetching user location:", error);
+            locateButton.disabled = false;
+          }
+        );
+      });
+
+      googleMapsButton.addEventListener("click", function () {
+        const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${targetLat},${targetLng}`;
+        window.open(googleMapsUrl, "_blank");
+      });
+
+      mapyCzButton.addEventListener("click", function () {
+        const mapyCzUrl = `https://mapy.cz/turisticka?source=coor&id=${targetLng},${targetLat}`;
+        window.open(mapyCzUrl, "_blank");
+      });
+    </script>
+  </body>
+</html>
