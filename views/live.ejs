@@ -55,8 +55,6 @@
         let pathPolyline = L.polyline([], { color: 'blue' }).addTo(map);
         let currentLocationMarker = L.marker([0, 0]).addTo(map);
 
-        const enableHoverAndTooltip = false;
-
         const sharedChartOptions = {
             scales: {
                 x: {
@@ -64,19 +62,21 @@
                     time: {
                         unit: 'minute',
                         displayFormats: {
-                            minute: 'hh:mm',
-                            hour: 'hh:mm',
+                            minute: 'HH:mm',
                         },
+                    },
+                    ticks: {
+                        source: 'data',
                     },
                 },
             },
             animation: false,
             interaction: {
-                mode: enableHoverAndTooltip ? 'nearest' : null,
+                mode: 'nearest',
             },
             plugins: {
                 tooltip: {
-                    enabled: enableHoverAndTooltip,
+                    enabled: false,
                 },
             },
         };
@@ -84,42 +84,47 @@
         function updateChartData(chartInstance, times, data) {
             chartInstance.data.labels = times;
             chartInstance.data.datasets[0].data = data;
-            chartInstance.options.animation = false;
             chartInstance.update();
         }
 
         function fetchAndRefreshData() {
-    fetch('/live-data')
-        .then(response => response.json())
-        .then(data => {
-            const times = data.map(row => new Date(`1970-01-01T${row.time}Z`));
-            const temperatures = data.map(row => row.temperature);
-            const pressures = data.map(row => row.pressure);
-            const humidities = data.map(row => row.humidity);
-            const heights = data.map(row => row.height);
-            const velocities = data.map(row => row.velocity);
-            const latestRow = data[data.length - 1];
-            const latestLatitude = latestRow.latitude;
-            const latestLongitude = latestRow.longitude;
+            fetch('/live-data')
+                .then(response => response.json())
+                .then(data => {
+                    // Limit data to the last 20 points
+                    const limitedData = data.slice(-20);
 
-            updateChartData(temperatureChartInstance, times, temperatures);
-            updateChartData(pressureChartInstance, times, pressures);
-            updateChartData(humidityChartInstance, times, humidities);
-            updateChartData(heightChartInstance, times, heights);
-            updateChartData(velocityChartInstance, times, velocities);
+                    // Extract times and data for each chart
+                    const times = limitedData.map(row => new Date(`1970-01-01T${row.time}Z`));
+                    const temperatures = limitedData.map(row => row.temperature);
+                    const pressures = limitedData.map(row => row.pressure);
+                    const humidities = limitedData.map(row => row.humidity);
+                    const heights = limitedData.map(row => row.height);
+                    const velocities = limitedData.map(row => row.velocity);
 
-            const locationDisplayElement = document.getElementById('locationDisplay');
-            locationDisplayElement.innerText = `Latitude: ${latestLatitude.toFixed(2)}, Longitude: ${latestLongitude.toFixed(2)}`;
+                    // Update the charts
+                    updateChartData(temperatureChartInstance, times, temperatures);
+                    updateChartData(pressureChartInstance, times, pressures);
+                    updateChartData(humidityChartInstance, times, humidities);
+                    updateChartData(heightChartInstance, times, heights);
+                    updateChartData(velocityChartInstance, times, velocities);
 
-            const newPosition = [latestLatitude, latestLongitude];
-            pathPolyline.addLatLng(newPosition);
-            currentLocationMarker.setLatLng(newPosition);
-            map.setView(newPosition, 13);
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
-}
+                    // Update location information and map
+                    const latestRow = limitedData[limitedData.length - 1];
+                    const latestLatitude = latestRow.latitude;
+                    const latestLongitude = latestRow.longitude;
+                    const locationDisplayElement = document.getElementById('locationDisplay');
+                    locationDisplayElement.innerText = `Latitude: ${latestLatitude.toFixed(2)}, Longitude: ${latestLongitude.toFixed(2)}`;
+
+                    const newPosition = [latestLatitude, latestLongitude];
+                    pathPolyline.addLatLng(newPosition);
+                    currentLocationMarker.setLatLng(newPosition);
+                    map.setView(newPosition, 13);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
 
         function initializeCharts() {
             const tempCtx = document.getElementById('temperatureChart').getContext('2d');
@@ -136,7 +141,9 @@
                         },
                     ],
                 },
-                options: sharedChartOptions,
+                options: {
+                    ...sharedChartOptions,
+                },
             });
 
             const pressureCtx = document.getElementById('pressureChart').getContext('2d');
@@ -153,7 +160,9 @@
                         },
                     ],
                 },
-                options: sharedChartOptions,
+                options: {
+                    ...sharedChartOptions,
+                },
             });
 
             const humidityCtx = document.getElementById('humidityChart').getContext('2d');
@@ -170,7 +179,9 @@
                         },
                     ],
                 },
-                options: sharedChartOptions,
+                options: {
+                    ...sharedChartOptions,
+                },
             });
 
             const heightCtx = document.getElementById('heightChart').getContext('2d');
@@ -187,7 +198,9 @@
                         },
                     ],
                 },
-                options: sharedChartOptions,
+                options: {
+                    ...sharedChartOptions,
+                },
             });
 
             const velocityCtx = document.getElementById('velocityChart').getContext('2d');
@@ -204,7 +217,9 @@
                         },
                     ],
                 },
-                options: sharedChartOptions,
+                options: {
+                    ...sharedChartOptions,
+                },
             });
         }
 
