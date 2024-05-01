@@ -35,7 +35,7 @@ app.get('/', (req, res) => {
   res.render('index');
 });
 
-app.get('/data', (req, res) => {
+app.get('/live-data', (req, res) => {
   connection.query('SELECT DATE_FORMAT(timestamp, "%H:%i") AS time, temperature, pressure, humidity, latitude, longitude, height, velocity FROM sarfad_data', (error, results, fields) => {
     if (error) {
       console.error('Error executing query:', error);
@@ -46,6 +46,19 @@ app.get('/data', (req, res) => {
     res.json(results);
   });
 });
+
+app.get('/latest-location', (req, res) => {
+  const query = 'SELECT latitude, longitude, MAX(timestamp) AS latest_timestamp, temperature, pressure, humidity, height, velocity FROM sarfad_data GROUP BY latitude, longitude ORDER BY latest_timestamp DESC LIMIT 1;';
+  connection.query(query, (error, results, fields) => {
+    if (error) {
+      console.error("Error executing query:", error);
+      res.status(500).json({ error: "Internal server error" });
+      return;
+    }
+    res.json(results);
+  });
+});
+
 
 const colors = {
   green: '\x1b[32m',
