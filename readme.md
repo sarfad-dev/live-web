@@ -1,6 +1,6 @@
-# SARFAD CanSat
+# SARFAD Live web
 
-Welcome to the SARFAD CanSat project! This repository contains the code for a web application that visualizes real-time data from a CanSat (a small satellite) using live charts and maps.
+Welcome to the SARFAD Live web! This repository contains the code for a web application that visualizes real-time data from a CanSat (a small satellite) using live charts and maps.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -10,7 +10,7 @@ Welcome to the SARFAD CanSat project! This repository contains the code for a we
 
 ## Overview
 
-The SARFAD CanSat web application visualizes real-time data from a CanSat, displaying it in a web-based dashboard. Features include:
+The SARFAD Live web application visualizes real-time data from a CanSat, displaying it in a web-based dashboard. Features include:
 
 - Real-time charts for temperature, pressure, humidity, height, and velocity.
 - Interactive map to display the CanSat's current location and path.
