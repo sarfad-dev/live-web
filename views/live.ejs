@@ -46,6 +46,10 @@
         </div>
     </div>
 
+    <footer class="bg-gray-800 p-4 shadow-md text-center rounded-t-lg mt-8">
+        <p class="text-sm text-gray-400">&copy; 2024 SARFAD Live Web</p>
+    </footer>
+
     <script>
         let temperatureChartInstance, pressureChartInstance, humidityChartInstance, heightChartInstance, velocityChartInstance;
         const map = L.map('map').setView([0, 0], 2);
@@ -91,10 +95,10 @@
             fetch('/live-data')
                 .then(response => response.json())
                 .then(data => {
-                    // Limit data to the last 20 points
-                    const limitedData = data.slice(-20);
 
-                    // Extract times and data for each chart
+                    const limitedData = data.slice(-50);
+
+
                     const times = limitedData.map(row => new Date(`1970-01-01T${row.time}Z`));
                     const temperatures = limitedData.map(row => row.temperature);
                     const pressures = limitedData.map(row => row.pressure);
@@ -102,7 +106,7 @@
                     const heights = limitedData.map(row => row.height);
                     const velocities = limitedData.map(row => row.velocity);
 
-                    // Update the charts
+
                     updateChartData(temperatureChartInstance, times, temperatures);
                     updateChartData(pressureChartInstance, times, pressures);
                     updateChartData(humidityChartInstance, times, humidities);

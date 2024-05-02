@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SARFAD Control Center</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@latest/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <style>
+        @keyframes countdownPulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes countdownPulseFast {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes countdownPulseVeryFast {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.15);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .countdownPulse {
+            animation: countdownPulse 1.5s infinite;
+        }
+
+        .countdownPulseFast {
+            animation: countdownPulseFast 1s infinite;
+        }
+
+        .countdownPulseVeryFast {
+            animation: countdownPulseVeryFast 0.5s infinite;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-200 font-sans">
+    <header class="bg-gray-800 p-4 shadow-md text-center rounded-b-lg">
+        <h1 class="text-3xl font-bold text-blue-400">SARFAD Control Center</h1>
+    </header>
+
+    <div class="container mx-auto mt-8 flex flex-col items-center justify-center">
+        <div class="w-full p-4">
+            <h2 class="text-2xl font-bold text-center mb-4">Launch Countdown</h2>
+            <div id="countdownTimer" class="bg-gray-800 p-4 rounded-lg shadow-md text-center countdownPulse">
+            </div>
+        </div>
+        <div class="w-full p-4">
+            <h2 class="text-2xl font-bold text-center mb-4">Current Location</h2>
+            <div id="map" class="w-full h-64 rounded-lg shadow-md"></div>
+        </div>
+        <div class="w-full p-4">
+            <h2 class="text-2xl font-bold text-center mb-4">Real-Time Data</h2>
+            <div id="realTimeData" class="bg-gray-800 p-4 rounded-lg shadow-md text-center">
+            </div>
+        </div>
+        <div class="w-full p-4">
+            <h2 class="text-2xl font-bold text-center mb-4">Set Launch Time</h2>
+            <form id="launchSetupForm" class="w-full max-w-sm mx-auto p-4 bg-gray-800 rounded-lg shadow-md">
+                <label for="launchTime" class="block text-lg mb-2 text-blue-300">Launch Time:</label>
+                <input type="datetime-local" id="launchTime" class="w-full p-2 mb-2 bg-gray-900 text-white rounded-lg" required>
+                <button type="submit" class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200">Set Launch Time</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 p-4 shadow-md text-center rounded-t-lg mt-8">
+        <p class="text-sm text-gray-400">&copy; 2024 SARFAD Control Center</p>
+    </footer>
+
+    <script>
+        const map = L.map('map').setView([0, 0], 2);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors',
+        }).addTo(map);
+        let launchTime;
+        const countdownTimerElement = document.getElementById('countdownTimer');
+        const realTimeDataElement = document.getElementById('realTimeData');
+        let cansatMarker;
+
+        const fetchRealTimeData = () => {
+            fetch('/live-data').then(response => response.json()).then(data => {
+                const latestRow = data[data.length - 1];
+                realTimeDataElement.innerHTML = `
+                    <p>Time: ${new Date().toLocaleTimeString()}</p>
+                    <p>Temperature: ${latestRow.temperature.toFixed(2)} °C</p>
+                    <p>Pressure: ${latestRow.pressure.toFixed(2)} hPa</p>
+                    <p>Humidity: ${latestRow.humidity.toFixed(2)} %</p>
+                    <p>Height: ${latestRow.height.toFixed(2)} m</p>
+                    <p>Velocity: ${latestRow.velocity.toFixed(2)} m/s</p>
+                `;
+                const [latestLat, latestLng] = [latestRow.latitude, latestRow.longitude];
+                if (cansatMarker) {
+                    cansatMarker.setLatLng([latestLat, latestLng]);
+                } else {
+                    cansatMarker = L.marker([latestLat, latestLng]).addTo(map).bindPopup('CanSat Location');
+                }
+                const newViewPosition = [latestLat, latestLng];
+                map.setView(newViewPosition, 13);
+            });
+        };
+
+        const updateCountdownTimer = () => {
+            if (!launchTime) return;
+            const now = new Date();
+            const timeRemaining = launchTime.getTime() - now.getTime();
+            let animationClass = 'countdownPulse';
+
+            if (timeRemaining <= 0) {
+                countdownTimerElement.innerHTML = '<p>Launch!</p>';
+                animationClass = '';
+            } else {
+                const seconds = Math.floor((timeRemaining / 1000) % 60);
+                const minutes = Math.floor((timeRemaining / (1000 * 60)) % 60);
+                const hours = Math.floor((timeRemaining / (1000 * 60 * 60)) % 24);
+                const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                countdownTimerElement.innerHTML = `
+                    ${days} days ${hours} hours ${minutes} minutes ${seconds} seconds
+                `;
+                if (timeRemaining <= 60 * 1000) {
+                    animationClass = 'countdownPulseVeryFast';
+                } else if (timeRemaining <= 5 * 60 * 1000) {
+                    animationClass = 'countdownPulseFast';
+                }
+            }
+
+            countdownTimerElement.classList.remove('countdownPulse', 'countdownPulseFast', 'countdownPulseVeryFast');
+            if (animationClass) {
+                countdownTimerElement.classList.add(animationClass);
+            }
+        };
+
+        document.getElementById('launchSetupForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const launchTimeInput = document.getElementById('launchTime').value;
+            launchTime = new Date(launchTimeInput);
+            fetch(`/save-launch-time?launchTime=${launchTime.toISOString()}`).then(() => {
+                updateCountdownTimer();
+            });
+        });
+
+        const fetchLaunchTime = () => {
+            fetch('/get-launch-time').then(response => response.json()).then(data => {
+                if (data.launchTime) {
+                    launchTime = new Date(data.launchTime);
+                    updateCountdownTimer();
+                }
+            });
+        };
+
+        fetchRealTimeData();
+        setInterval(fetchRealTimeData, 2000);
+        setInterval(updateCountdownTimer, 1000);
+        fetchLaunchTime();
+
+        window.onload = () => {
+            fetchRealTimeData();
+        };
+    </script>
+</body>
+</html>
