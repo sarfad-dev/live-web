@@ -91,10 +91,9 @@
             fetch('/live-data')
                 .then(response => response.json())
                 .then(data => {
-                    // Limit data to the last 20 points
+
                     const limitedData = data.slice(-20);
 
-                    // Extract times and data for each chart
                     const times = limitedData.map(row => new Date(`1970-01-01T${row.time}Z`));
                     const temperatures = limitedData.map(row => row.temperature);
                     const pressures = limitedData.map(row => row.pressure);
@@ -102,14 +101,12 @@
                     const heights = limitedData.map(row => row.height);
                     const velocities = limitedData.map(row => row.velocity);
 
-                    // Update the charts
                     updateChartData(temperatureChartInstance, times, temperatures);
                     updateChartData(pressureChartInstance, times, pressures);
                     updateChartData(humidityChartInstance, times, humidities);
                     updateChartData(heightChartInstance, times, heights);
                     updateChartData(velocityChartInstance, times, velocities);
 
-                    // Update location information and map
                     const latestRow = limitedData[limitedData.length - 1];
                     const latestLatitude = latestRow.latitude;
                     const latestLongitude = latestRow.longitude;
