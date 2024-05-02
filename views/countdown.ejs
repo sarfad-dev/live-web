@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Countdown to Launch</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@latest/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        @keyframes countdownPulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .countdown-pulse {
+            animation: countdownPulse 1s infinite;
+        }
+
+        .fade-in {
+            animation: fadeIn 1s ease-in-out;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-gray-200 font-sans flex flex-col items-center justify-center h-screen p-4">
+    <div class="text-center bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-2xl countdown-pulse fade-in">
+        <h1 class="text-5xl font-bold text-blue-400 mb-6">Countdown to Launch</h1>
+        <div id="countdownTimer" class="text-6xl font-extrabold text-blue-300 mb-6">
+            Loading...
+        </div>
+    </div>
+
+    <script>
+        let launchTime;
+
+        const fetchLaunchTime = () => {
+            fetch('/get-launch-time')
+                .then(response => response.json())
+                .then(data => {
+                    launchTime = new Date(data.launchTime);
+                    updateCountdownTimer();
+                    setInterval(updateCountdownTimer, 1000);
+                });
+        };
+
+        const updateCountdownTimer = () => {
+            const now = new Date();
+            const timeRemaining = launchTime.getTime() - now.getTime();
+
+            if (timeRemaining > 0) {
+                const seconds = Math.floor((timeRemaining / 1000) % 60);
+                const minutes = Math.floor((timeRemaining / (1000 * 60)) % 60);
+                const hours = Math.floor((timeRemaining / (1000 * 60 * 60)) % 24);
+                const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+                document.getElementById('countdownTimer').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+            } else {
+                document.getElementById('countdownTimer').textContent = 'Launch Time!';
+            }
+        };
+
+        fetchLaunchTime();
+    </script>
+</body>
+
+</html>

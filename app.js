@@ -38,12 +38,17 @@ app.get('/locate', (req, res) => {
   res.render('locate');
 });
 
+app.get('/countdown', (req, res) => {
+  res.render('countdown');
+});
+
 app.get('/', (req, res) => {
   res.render('index');
 });
 
+
+
 app.get('/live-data', (req, res) => {
-  // Update the query to remove duplicates based on the timestamp
   connection.query(
       `SELECT DATE_FORMAT(timestamp, "%H:%i:%s") AS time,
               AVG(temperature) AS temperature,
@@ -94,7 +99,7 @@ app.get('/check-password', (req, res) => {
 app.get('/save-launch-time', (req, res) => {
   const launchTimeISO = req.query.launchTime;
   if (launchTimeISO) {
-      // Convert the ISO date to MySQL date format
+
       const launchTime = new Date(launchTimeISO);
       const formattedLaunchTime = `${launchTime.getFullYear()}-${String(launchTime.getMonth() + 1).padStart(2, '0')}-${String(launchTime.getDate()).padStart(2, '0')} ${String(launchTime.getHours()).padStart(2, '0')}:${String(launchTime.getMinutes()).padStart(2, '0')}:${String(launchTime.getSeconds()).padStart(2, '0')}`;
 
