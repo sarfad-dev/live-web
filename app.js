@@ -143,6 +143,7 @@ app.listen(port, () => {
   console.log(`${colors.green}Index Page: ${colors.reset}http://localhost:${port}/`);
   console.log(`${colors.green}Live Web: ${colors.reset}http://localhost:${port}/live`);
   console.log(`${colors.green}Locate App: ${colors.reset}http://localhost:${port}/locate`);
-  console.log(`${colors.green}Control center: ${colors.reset}http://localhost:${port}/control`);
+  console.log(`${colors.green}Control Center: ${colors.reset}http://localhost:${port}/control`);
+  console.log(`${colors.green}Launch Countdown: ${colors.reset}http://localhost:${port}/countdown`);
   console.log(`${colors.white}---------------------------------------${colors.reset}`);
 });
