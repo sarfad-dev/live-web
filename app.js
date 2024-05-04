@@ -25,6 +25,7 @@ connection.connect((err) => {
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
+app.use('/favicon.ico', express.static('views/favicon.ico'));
 
 app.get('/live', (req, res) => {
   res.render('live');
