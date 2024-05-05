@@ -21,27 +21,21 @@
         <div class="w-full p-4">
             <div id="map" class="w-full h-64 rounded-lg shadow-md"></div>
         </div>
-
         <div class="w-full sm:w-1/2 p-4 flex justify-center">
             <canvas id="temperatureChart" class="w-full h-auto bg-gray-800 rounded-lg shadow-md"></canvas>
         </div>
-
         <div class="w-full sm:w-1/2 p-4 flex justify-center">
             <canvas id="pressureChart" class="w-full h-auto bg-gray-800 rounded-lg shadow-md"></canvas>
         </div>
-
         <div class="w-full sm:w-1/2 p-4 flex justify-center">
             <canvas id="humidityChart" class="w-full h-auto bg-gray-800 rounded-lg shadow-md"></canvas>
         </div>
-
         <div class="w-full sm:w-1/2 p-4 flex justify-center">
             <canvas id="heightChart" class="w-full h-auto bg-gray-800 rounded-lg shadow-md"></canvas>
         </div>
-
         <div class="w-full sm:w-1/2 p-4 flex justify-center">
             <canvas id="velocityChart" class="w-full h-auto bg-gray-800 rounded-lg shadow-md"></canvas>
         </div>
-
         <div class="w-full sm:w-1/2 p-4 text-center">
             <p id="locationDisplay" class="text-lg bg-gray-800 p-2 rounded-lg shadow-md"></p>
         </div>
@@ -55,7 +49,7 @@
         let temperatureChartInstance, pressureChartInstance, humidityChartInstance, heightChartInstance, velocityChartInstance;
         const map = L.map('map').setView([0, 0], 2);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            attribution: '&copy; OpenStreetMap contributors',
         }).addTo(map);
         let pathPolyline = L.polyline([], { color: 'blue' }).addTo(map);
         let currentLocationMarker = L.marker([0, 0]).addTo(map);
@@ -65,13 +59,15 @@
                 x: {
                     type: 'time',
                     time: {
-                        unit: 'minute',
+                        unit: 'second',
+                        stepSize: 30,
                         displayFormats: {
-                            minute: 'HH:mm',
+                            second: 'hh:mm:ss',
                         },
                     },
                     ticks: {
                         source: 'data',
+                        stepSize : '9'
                     },
                 },
             },
@@ -96,43 +92,32 @@
             fetch('/live-data')
                 .then(response => response.json())
                 .then(data => {
-
                     const limitedData = data.slice(-50);
-
-
                     const times = limitedData.map(row => new Date(`1970-01-01T${row.time}Z`));
                     const temperatures = limitedData.map(row => row.temperature);
                     const pressures = limitedData.map(row => row.pressure);
                     const humidities = limitedData.map(row => row.humidity);
                     const heights = limitedData.map(row => row.height);
                     const velocities = limitedData.map(row => row.velocity);
-
-
                     updateChartData(temperatureChartInstance, times, temperatures);
                     updateChartData(pressureChartInstance, times, pressures);
                     updateChartData(humidityChartInstance, times, humidities);
                     updateChartData(heightChartInstance, times, heights);
                     updateChartData(velocityChartInstance, times, velocities);
-
                     const latestRow = limitedData[limitedData.length - 1];
-                    const latestLatitude = latestRow.latitude;
-                    const latestLongitude = latestRow.longitude;
-                    const locationDisplayElement = document.getElementById('locationDisplay');
-                    locationDisplayElement.innerText = `Latitude: ${latestLatitude.toFixed(2)}, Longitude: ${latestLongitude.toFixed(2)}`;
-
+                    const latestLatitude = parseFloat(latestRow.latitude);
+                    const latestLongitude = parseFloat(latestRow.longitude);
+                    document.getElementById('locationDisplay').innerText = `Latitude: ${latestLatitude.toFixed(6)}, Longitude: ${latestLongitude.toFixed(6)}`;
                     const newPosition = [latestLatitude, latestLongitude];
                     pathPolyline.addLatLng(newPosition);
                     currentLocationMarker.setLatLng(newPosition);
                     map.setView(newPosition, 13);
                 })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
+                .catch(error => console.error('Error fetching data:', error));
         }
 
         function initializeCharts() {
-            const tempCtx = document.getElementById('temperatureChart').getContext('2d');
-            temperatureChartInstance = new Chart(tempCtx, {
+            temperatureChartInstance = new Chart(document.getElementById('temperatureChart').getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: [],
@@ -145,13 +130,9 @@
                         },
                     ],
                 },
-                options: {
-                    ...sharedChartOptions,
-                },
+                options: sharedChartOptions,
             });
-
-            const pressureCtx = document.getElementById('pressureChart').getContext('2d');
-            pressureChartInstance = new Chart(pressureCtx, {
+            pressureChartInstance = new Chart(document.getElementById('pressureChart').getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: [],
@@ -164,13 +145,9 @@
                         },
                     ],
                 },
-                options: {
-                    ...sharedChartOptions,
-                },
+                options: sharedChartOptions,
             });
-
-            const humidityCtx = document.getElementById('humidityChart').getContext('2d');
-            humidityChartInstance = new Chart(humidityCtx, {
+            humidityChartInstance = new Chart(document.getElementById('humidityChart').getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: [],
@@ -183,13 +160,9 @@
                         },
                     ],
                 },
-                options: {
-                    ...sharedChartOptions,
-                },
+                options: sharedChartOptions,
             });
-
-            const heightCtx = document.getElementById('heightChart').getContext('2d');
-            heightChartInstance = new Chart(heightCtx, {
+            heightChartInstance = new Chart(document.getElementById('heightChart').getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: [],
@@ -202,13 +175,9 @@
                         },
                     ],
                 },
-                options: {
-                    ...sharedChartOptions,
-                },
+                options: sharedChartOptions,
             });
-
-            const velocityCtx = document.getElementById('velocityChart').getContext('2d');
-            velocityChartInstance = new Chart(velocityCtx, {
+            velocityChartInstance = new Chart(document.getElementById('velocityChart').getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: [],
@@ -221,9 +190,7 @@
                         },
                     ],
                 },
-                options: {
-                    ...sharedChartOptions,
-                },
+                options: sharedChartOptions,
             });
         }
 

@@ -1,0 +1,301 @@
+:root {
+    --default-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      Ubuntu, "Helvetica Neue", Helvetica, Arial, "PingFang SC",
+      "Hiragino Sans GB", "Microsoft Yahei UI", "Microsoft Yahei",
+      "Source Han Sans CN", sans-serif;
+  }
+  
+  .main-container {
+    overflow: hidden;
+  }
+  
+  .main-container,
+  .main-container * {
+    box-sizing: border-box;
+  }
+  
+  input,
+  select,
+  textarea,
+  button {
+    outline: 0;
+  }
+  
+  .main-container {
+    position: relative;
+    width: 1920px;
+    height: 4786px;
+    margin: 0 auto;
+    background: #1e293b;
+    overflow: hidden;
+  }
+  .rectangle {
+    position: relative;
+    width: 1920px;
+    height: 80px;
+    margin: 0 0 0 0;
+    background: #dc2626;
+    z-index: 41;
+  }
+  .sleduj-nasi-misi {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    position: absolute;
+    height: 33px;
+    top: 22.294px;
+    left: 1494.684px;
+    color: #ffffff;
+    font-family: Open Sans, var(--default-font-family);
+    font-size: 24px;
+    font-weight: 800;
+    line-height: 32.684px;
+    text-align: left;
+    white-space: nowrap;
+    z-index: 43;
+  }
+  .sleduj-nasi-misi-1 {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    position: absolute;
+    height: 33px;
+    top: 23.5px;
+    left: 174.158px;
+    color: #ffffff;
+    font-family: Open Sans, var(--default-font-family);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 32.684px;
+    text-align: left;
+    white-space: nowrap;
+    z-index: 42;
+  }
+  .arrow {
+    position: absolute;
+    width: 18.784px;
+    top: 38.794px;
+    left: 1754.511px;
+    background: url(./assets/images/2634dbc5-9d6b-42bb-b788-ccf7682af1da.png)
+      no-repeat center;
+    background-size: cover;
+    z-index: 44;
+  }
+  .flex-row-cfc {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+    width: 1571.684px;
+    height: 40px;
+    margin: 42.379px 0 0 174px;
+    z-index: 27;
+  }
+  .logo-sarfad {
+    flex-shrink: 0;
+    position: relative;
+    width: 135.456px;
+    height: 36px;
+    z-index: 27;
+    overflow: hidden;
+  }
+  .vector {
+    position: relative;
+    width: 135.458px;
+    height: 36.001px;
+    margin: 0px 0 0 0;
+    background: url(./assets/images/70daf165-f41e-42e9-a779-bff06078c6d9.png)
+      no-repeat center;
+    background-size: 100% 100%;
+    z-index: 28;
+  }
+  .frame {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    gap: 41px;
+    position: relative;
+    width: 811.738px;
+    z-index: 23;
+  }
+  .o-soutezi {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-shrink: 0;
+    flex-basis: auto;
+    position: relative;
+    width: 217.92px;
+    height: 40px;
+    color: #ffffff;
+    font-family: Hero New, var(--default-font-family);
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 40px;
+    text-align: left;
+    white-space: nowrap;
+    z-index: 24;
+  }
+  .our-mission {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-shrink: 0;
+    flex-basis: auto;
+    position: relative;
+    width: 215.691px;
+    height: 40px;
+    color: #ffffff;
+    font-family: Hero New, var(--default-font-family);
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 40px;
+    text-align: left;
+    white-space: nowrap;
+    z-index: 25;
+  }
+  .gallery {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-shrink: 0;
+    flex-basis: auto;
+    position: relative;
+    width: 162.688px;
+    height: 40px;
+    color: #ffffff;
+    font-family: Hero New, var(--default-font-family);
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 40px;
+    text-align: left;
+    white-space: nowrap;
+    z-index: 26;
+  }
+  .flex-row {
+    position: relative;
+    width: 1571.997px;
+    height: 446.054px;
+    margin: 65.879px 0 0 174px;
+    z-index: 30;
+  }
+  .sarfad {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    position: absolute;
+    height: 129.861px;
+    top: 0;
+    left: 0;
+    color: #ffffff;
+    font-family: Hero New, var(--default-font-family);
+    font-size: 128px;
+    font-weight: 800;
+    line-height: 129.861px;
+    text-align: left;
+    white-space: nowrap;
+    z-index: 1;
+  }
+  .group {
+    position: absolute;
+    width: 437.574px;
+    height: 435.785px;
+    top: 10.27px;
+    left: 1134.423px;
+    background: url(./assets/images/d84a964c-5a2f-49d4-9c10-71f3b07c5e75.png)
+      no-repeat center;
+    background-size: cover;
+    z-index: 20;
+  }
+  .team-students-satellite {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    position: absolute;
+    width: 796px;
+    height: 108px;
+    top: 164.119px;
+    left: 0;
+    color: #ffffff;
+    font-family: Open Sans, var(--default-font-family);
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 54.473px;
+    text-align: left;
+  }
+  .rectangle-2 {
+    position: absolute;
+    width: 388px;
+    height: 94.689px;
+    top: 337.648px;
+    left: 0;
+    background: #1e293b;
+    border: 2px solid #64748b;
+    z-index: 30;
+    border-radius: 15px;
+  }
+  .more-about-project {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    position: absolute;
+    width: 388px;
+    height: 56px;
+    top: 17.344px;
+    left: -2px;
+    color: #f3f3f3;
+    font-family: Hero New, var(--default-font-family);
+    font-size: 40px;
+    font-weight: 400;
+    line-height: 55.96px;
+    text-align: center;
+    white-space: nowrap;
+    z-index: 31;
+    -webkit-text-stroke: 1px #334155;
+  }
+  .flex-row-3 {
+    position: relative;
+    width: 2617.637px;
+    height: 1165.577px;
+    margin: 174.223px 0 0 -91.909px;
+    z-index: 33;
+  }
+  .rectangle-4 {
+    position: absolute;
+    width: 2539.86px;
+    height: 220.163px;
+    top: 0;
+    left: 77.777px;
+    background: url(./assets/images/e3d28afc-7e8e-4d54-9600-0f1e8b82548a.png)
+      no-repeat center;
+    background-size: cover;
+    z-index: 3;
+  }
+  .rectangle-5 {
+    position: absolute;
+    width: 1991.416px;
+    height: 192.809px;
+    top: 38.655px;
+    left: 51.014px;
+    background: url(./assets/images/6ff2833e-043b-4116-996d-9ff2df726c30.png)
+      no-repeat center;
+    background-size: cover;
+    z-index: 5;
+  }
+  .group-6 {
+    position: absolute;
+    width: 954.699px;
+    height: 955.504px;
+    top: 75.542px;
+    left: 1215.629px;
+    background: url(./assets/images/5374fa29-bd00-4f30-a056-207dd11865a9.png)
+      no-repeat center;
+    background-size: cover;
+    z-index: 33;
+  }
+  .rectangle-7 {
+    position: absolute;
+    width: 1920px;
+}

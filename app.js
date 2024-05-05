@@ -52,13 +52,13 @@ app.get('/', (req, res) => {
 app.get('/live-data', (req, res) => {
   connection.query(
       `SELECT DATE_FORMAT(timestamp, "%H:%i:%s") AS time,
-              AVG(temperature) AS temperature,
-              AVG(pressure) AS pressure,
-              AVG(humidity) AS humidity,
-              AVG(latitude) AS latitude,
-              AVG(longitude) AS longitude,
-              AVG(height) AS height,
-              AVG(velocity) AS velocity
+              temperature,
+              pressure,
+              humidity,
+              latitude,
+              longitude,
+              height,
+              velocity
        FROM sarfad_data
        GROUP BY time
        ORDER BY time`,
