@@ -93,7 +93,7 @@
                 .then(response => response.json())
                 .then(data => {
                     const limitedData = data.slice(-50);
-                    const times = limitedData.map(row => new Date(`1970-01-01T${row.time}Z`));
+                    const times = limitedData.map(row => new Date(`1970-01-01T${row.time}`));
                     const temperatures = limitedData.map(row => row.temperature);
                     const pressures = limitedData.map(row => row.pressure);
                     const humidities = limitedData.map(row => row.humidity);
@@ -107,7 +107,7 @@
                     const latestRow = limitedData[limitedData.length - 1];
                     const latestLatitude = parseFloat(latestRow.latitude);
                     const latestLongitude = parseFloat(latestRow.longitude);
-                    document.getElementById('locationDisplay').innerText = `Latitude: ${latestLatitude.toFixed(6)}, Longitude: ${latestLongitude.toFixed(6)}`;
+                    document.getElementById('locationDisplay').innerText = `N ${latestLatitude.toFixed(6)}, E ${latestLongitude.toFixed(6)}`;
                     const newPosition = [latestLatitude, latestLongitude];
                     pathPolyline.addLatLng(newPosition);
                     currentLocationMarker.setLatLng(newPosition);
