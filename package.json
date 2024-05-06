@@ -11,7 +11,9 @@
     "mysql": "^2.18.1",
     "plotly": "^1.0.6",
     "serve-favicon": "^2.5.0",
-    "socketio": "^1.0.0",
+    "socketio": "^1.0.0"
+  },
+  "devDependencies": {
     "tailwindcss": "^3.4.3"
   }
 }
