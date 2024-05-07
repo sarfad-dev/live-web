@@ -128,7 +128,7 @@ const colors = {
 app.listen(port, () => {
   console.log(`${colors.green}App listening on the following routes:${colors.reset}`);
   console.log(`${colors.white}---------------------------------------${colors.reset}`);
-  console.log(`${colors.green}Index Page: ${colors.reset}http://localhost:${port}/`);
+  console.log(`${colors.green}Home Website: ${colors.reset}http://localhost:${port}/`);
   console.log(`${colors.green}Live Web: ${colors.reset}http://localhost:${port}/live`);
   console.log(`${colors.green}Locate App: ${colors.reset}http://localhost:${port}/locate`);
   console.log(`${colors.green}Control Center: ${colors.reset}http://localhost:${port}/control`);
