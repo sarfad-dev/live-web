@@ -3,9 +3,9 @@ const mysql = require('mysql');
 const dotenv = require('dotenv');
 const ejs = require('ejs');
 const crypto = require('crypto');
+const simpleGit = require('simple-git');
 
 dotenv.config();
-
 const app = express();
 const port = 25576;
 const connection = mysql.createConnection({
@@ -27,58 +27,32 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use('/favicon.ico', express.static('views/favicon.ico'));
 
-app.get('/live', (req, res) => {
-  res.render('live');
-});
-
-app.get('/control', (req, res) => {
-  res.render('control');
-});
-
-app.get('/locate', (req, res) => {
-  res.render('locate');
-});
-
-app.get('/countdown', (req, res) => {
-  res.render('countdown');
-});
-
-app.get('/', (req, res) => {
-  res.render('index');
-});
-
-
+app.get('/live', (req, res) => res.render('live'));
+app.get('/control', (req, res) => res.render('control'));
+app.get('/locate', (req, res) => res.render('locate'));
+app.get('/countdown', (req, res) => res.render('countdown'));
+app.get('/', (req, res) => res.render('index'));
 
 app.get('/live-data', (req, res) => {
   connection.query(
-      `SELECT DATE_FORMAT(timestamp, "%H:%i:%s") AS time,
-              temperature,
-              pressure,
-              humidity,
-              latitude,
-              longitude,
-              height,
-              velocity
-       FROM sarfad_data
-       GROUP BY time
-       ORDER BY time`,
-      (error, results, fields) => {
-          if (error) {
-              console.error('Error executing query:', error);
-              res.status(500).json({ error: 'Internal server error' });
-              return;
-          }
-          res.json(results);
+    `SELECT DATE_FORMAT(timestamp, "%H:%i:%s") AS time, temperature, pressure, humidity, latitude, longitude, height, velocity FROM sarfad_data GROUP BY time ORDER BY time`,
+    (error, results) => {
+      if (error) {
+        console.error('Error executing query:', error);
+        res.status(500).json({ error: 'Internal server error' });
+        return;
       }
+      res.json(results);
+    }
   );
 });
 
 app.get('/latest-location', (req, res) => {
   const query = 'SELECT latitude, longitude, MAX(timestamp) AS latest_timestamp, temperature, pressure, humidity, height, velocity FROM sarfad_data GROUP BY latitude, longitude ORDER BY latest_timestamp DESC LIMIT 1;';
-  connection.query(query, (error, results, fields) => {
+  connection.query(query, (error, results) => {
     if (error) {
-      console.error("Error executing query:", error);
-      res.status(500).json({ error: "Internal server error" });
+      console.error('Error executing query:', error);
+      res.status(500).json({ error: 'Internal server error' });
       return;
     }
     res.json(results);
@@ -88,7 +62,6 @@ app.get('/latest-location', (req, res) => {
 app.get('/check-password', (req, res) => {
   const userInputPassword = req.query.password;
   const correctPassword = process.env.PASSWORD;
-
   if (userInputPassword === correctPassword) {
     const sessionToken = crypto.randomBytes(16).toString('hex');
     res.json({ authorized: true, sessionToken });
@@ -100,36 +73,50 @@ app.get('/check-password', (req, res) => {
 app.get('/save-launch-time', (req, res) => {
   const launchTimeISO = req.query.launchTime;
   if (launchTimeISO) {
-
-      const launchTime = new Date(launchTimeISO);
-      const formattedLaunchTime = `${launchTime.getFullYear()}-${String(launchTime.getMonth() + 1).padStart(2, '0')}-${String(launchTime.getDate()).padStart(2, '0')} ${String(launchTime.getHours()).padStart(2, '0')}:${String(launchTime.getMinutes()).padStart(2, '0')}:${String(launchTime.getSeconds()).padStart(2, '0')}`;
-
-      const query = 'INSERT INTO launch_time (launch_time) VALUES (?) ON DUPLICATE KEY UPDATE launch_time = VALUES(launch_time)';
-      connection.query(query, [formattedLaunchTime], (error) => {
-          if (error) {
-              console.error('Error saving launch time:', error);
-              res.status(500).json({ error: 'Internal server error' });
-              return;
-          }
-          res.status(200).end();
-      });
+    const launchTime = new Date(launchTimeISO);
+    const formattedLaunchTime = `${launchTime.getFullYear()}-${String(launchTime.getMonth() + 1).padStart(2, '0')}-${String(launchTime.getDate()).padStart(2, '0')} ${String(launchTime.getHours()).padStart(2, '0')}:${String(launchTime.getMinutes()).padStart(2, '0')}:${String(launchTime.getSeconds()).padStart(2, '0')}`;
+    const query = 'INSERT INTO launch_time (launch_time) VALUES (?) ON DUPLICATE KEY UPDATE launch_time = VALUES(launch_time)';
+    connection.query(query, [formattedLaunchTime], (error) => {
+      if (error) {
+        console.error('Error saving launch time:', error);
+        res.status(500).json({ error: 'Internal server error' });
+        return;
+      }
+      res.status(200).end();
+    });
   } else {
-      res.status(400).json({ error: 'Missing launch time parameter' });
+    res.status(400).json({ error: 'Missing launch time parameter' });
   }
 });
-
 
 app.get('/get-launch-time', (req, res) => {
   const query = 'SELECT launch_time FROM launch_time ORDER BY id DESC LIMIT 1';
   connection.query(query, (error, results) => {
-      if (error) {
-          console.error('Error fetching launch time:', error);
-          res.status(500).json({ error: 'Internal server error' });
-          return;
-      }
-      const launchTime = results[0] ? results[0].launch_time : null;
-      res.json({ launchTime });
+    if (error) {
+      console.error('Error fetching launch time:', error);
+      res.status(500).json({ error: 'Internal server error' });
+      return;
+    }
+    const launchTime = results[0] ? results[0].launch_time : null;
+    res.json({ launchTime });
   });
+});
+
+async function updateRepo() {
+  try {
+    const git = simpleGit();
+    git.cwd('./');
+    await git.pull();
+    console.log('Successfully pulled latest changes from the repository.');
+  } catch (error) {
+    console.error('Failed to pull the latest changes from the repository:', error);
+  }
+}
+
+updateRepo().then(() => {
+  console.log('Repository updated successfully.');
+}).catch((err) => {
+  console.error('Failed to update repository:', err);
 });
 
 const colors = {
