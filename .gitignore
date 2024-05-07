@@ -1,4 +1,6 @@
 .env
 .vercel
 /node_modules
-
+/src/output.css
+package.json
+package-lock.json

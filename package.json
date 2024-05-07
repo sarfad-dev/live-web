@@ -11,8 +11,14 @@
     "mysql": "^2.18.1",
     "plotly": "^1.0.6",
     "serve-favicon": "^2.5.0",
+<<<<<<< HEAD
     "simple-git": "^3.24.0",
     "socketio": "^1.0.0",
+=======
+    "socketio": "^1.0.0"
+  },
+  "devDependencies": {
+>>>>>>> 2b1873a3ebee2c9334f1fb2cb4db3c48beaef622
     "tailwindcss": "^3.4.3"
   }
 }
