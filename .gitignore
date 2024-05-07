@@ -1,6 +1,10 @@
 .env
 .vercel
 /node_modules
+<<<<<<< HEAD
 /src/output.css
 package.json
 package-lock.json
+=======
+
+>>>>>>> parent of 2b1873a (feat: implement base layout of tailwind)
