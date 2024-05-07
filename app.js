@@ -25,7 +25,7 @@ connection.connect((err) => {
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
-app.use('/favicon.ico', express.static('views/favicon.ico'));
+app.use('/favicon.ico', express.static('favicon.ico'));
 
 app.get('/live', (req, res) => res.render('live'));
 app.get('/control', (req, res) => res.render('control'));
@@ -105,7 +105,7 @@ app.get('/get-launch-time', (req, res) => {
 async function updateRepo() {
   try {
     const git = simpleGit();
-    git.cwd('./');
+    git.cwd('./sarfad-website/');
     await git.pull();
     console.log('Successfully pulled latest changes from the repository.');
   } catch (error) {
