@@ -60,19 +60,34 @@
         };
 
         const updateCountdownTimer = () => {
-            const now = new Date();
-            const timeRemaining = launchTime.getTime() - now.getTime();
+    const now = new Date();
+    const timeRemaining = launchTime.getTime() - now.getTime();
+    const countdownTimerElement = document.getElementById('countdownTimer');
 
-            if (timeRemaining > 0) {
-                const seconds = Math.floor((timeRemaining / 1000) % 60);
-                const minutes = Math.floor((timeRemaining / (1000 * 60)) % 60);
-                const hours = Math.floor((timeRemaining / (1000 * 60 * 60)) % 24);
-                const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
-                document.getElementById('countdownTimer').textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-            } else {
-                document.getElementById('countdownTimer').textContent = 'Launch';
-            }
-        };
+    if (timeRemaining > 0) {
+
+        const totalSeconds = Math.floor(timeRemaining / 1000);
+        const days = Math.floor(totalSeconds / (60 * 60 * 24));
+        const remainingSeconds = totalSeconds % (60 * 60 * 24);
+        const hours = Math.floor(remainingSeconds / (60 * 60));
+        const remainingSecondsAfterHours = remainingSeconds % (60 * 60);
+        const minutes = Math.floor(remainingSecondsAfterHours / 60);
+        const seconds = remainingSecondsAfterHours % 60;
+
+        countdownTimerElement.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    } else {
+
+        const timePassed = Math.abs(timeRemaining);
+        const totalSecondsPassed = Math.floor(timePassed / 1000);
+        const minutesPassed = Math.floor(totalSecondsPassed / 60);
+        const secondsPassed = totalSecondsPassed % 60;
+
+        countdownTimerElement.textContent = `+${minutesPassed}m ${secondsPassed}s`;
+        countdownTimerElement.style.color = 'red';
+    }
+};
+
+
 
         fetchLaunchTime();
     </script>
